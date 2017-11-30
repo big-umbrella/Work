@@ -1,0 +1,124 @@
+0
+IoC（Inversion of Control，控制反转）：
+设计原则，解耦组件之间的依赖关系
+
+DI（ DI(Dependency Injection ，依赖注入）：
+具体的设计模式，体现了IoC的设计原则
+
+
+1.BeanFactory与ApplicationContext的区别
+BeanFactory提供了配置框架和基本功能，ApplicationContext则添加了更多的企业特定功能
+ApplicationContext是BeanFactory的一个子接口，同时也是它的一个完整的超集
+实例Bean的载入方式不同：
+BeanFactory延迟载入所有Bean，直到getBean()方法调用时才被创建
+ApplicationContext启动后载入所有单实例Bean。通过预载入单实例Bean，确保当需要时可以使用
+ApplicationContext是BeanFactory的一个子接口
+ApplicationContext添加了更多的企业特定的功能：
+例如增加了更方便的集成Spring的AOP功能
+消息资源处理（用于国际化）
+事件的发布
+2.
+配置元数据可以用XML、Java注解或Java代码来描述
+
+Bean的实例化：
+通过构造方法实例化
+使用静态工厂方法实例化
+使用实例工厂方法实例化
+
+Spring中的注入方式主要有2种：构造器注入和Setter方法注入
+
+
+3.
+Bean的生命周期
+Spring实例化Bean 
+Spring注入Bean的属性 
+设置Bean名称，Bean工厂，应用上下文 
+预处理(在初始化之前)调用BeanPostProcessor对象的postProcessBeforeInitialization()方法 
+初始化Bean
+预处理(在初始化之后) 调用BeanPostProcessor对象的postProcessAfterInitialization()方法
+Bean已经准备好默认以单例的形式存在Spring容器中
+销毁Bean
+4.spring注入的实现 把A注入给B
+<context:annotation-config />
+	<context:component-scan base-package="demoannotation">
+	</context:component-scan>
+
+@Component
+public class B{
+
+        @Resource
+	A A;
+        public void setA(A A) {
+		this.A = A;
+	}    
+5 AOP编程 前置通知 后置通知 环绕通知
+@Component
+@Aspect
+public class S {
+
+
+@Before("execution(* com.service.*.regist(..))")
+	public void beforeMethod(JoinPoint joinPoint) {
+		
+}
+
+@AfterReturning(pointcut="execution(* com.service.*.*(..))",returning="result")
+	public void afterReturningMethod(JoinPoint joinPoint, Object result){
+		
+	}
+
+@Around("execution(* com.service.*.*(..))")
+	public Object aroundMethod(ProceedingJoinPoint joinPoint) {
+		System.out.println("现在调用的是环绕方法------");		
+		Object[] args=joinPoint.getArgs();
+		
+		Object result=null;
+		try {
+			result=joinPoint.proceed(args);
+		} catch (Throwable e) {
+			e.printStackTrace();
+		}
+		System.out.println("现在调用的是环绕方法------");
+		return result;
+	}
+
+6 
+<a href="/shprj/user/regist">注册</a>
+spring MVC
+web.xml
+<filter-mapping>
+		<filter-name>CharacterEncodingFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+	<filter>
+		<filter-name>openSessionInView</filter-name>
+		<filter-class>org.springframework.orm.hibernate5.support.OpenSessionInViewFilter</filter-class>
+	</filter>
+spring-mvc.xml
+
+<context:annotation-config />
+	<context:component-scan base-package="demoannotation">
+	</context:component-scan>
+
+@Controller
+@RequestMapping("/user")
+public class LoginUserController {
+	
+	
+	@RequestMapping("/regist")
+	public String login(@RequestParam("loginName") String loginName,
+			@RequestParam("password") String password,
+			Model model, ){
+		LoginUser lu=this.LoginUserServiceImpl.login(loginName, password);
+		if(lu!=null){
+			session.setAttribute("lu", lu);
+			return "main";
+		}else{
+			model.addAttribute("errorinfo", "您的账号密码不正确！");
+			return "index";
+		}
+	}
+
+
+
+        
